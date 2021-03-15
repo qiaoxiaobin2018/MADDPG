@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import inspect
 import functools
@@ -40,14 +42,25 @@ def make_env(args):
     # create world
     world = scenario.make_world()
     # create multiagent environment
+    # Params: world、world中的agents（捕食者和食物）、reset_world方法、状态获取方法observation
     env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
     # env = MultiAgentEnv(world)
     args.n_players = env.n  # 包含敌人的所有玩家个数
     args.n_agents = env.n - args.num_adversaries  # 需要操控的玩家个数，虽然敌人也可以控制，但是双方都学习的话需要不同的算法
+
+    print('--args.n_players: {}'.format(args.n_players))
+    print('--args.n_agents: {}'.format(args.n_agents))
+    time.sleep(10)
+
     args.obs_shape = [env.observation_space[i].shape[0] for i in range(args.n_agents)]  # 每一维代表该agent的obs维度
     action_shape = []
     for content in env.action_space:
-        action_shape.append(content.n)
+        # content is 'spaces.Discrete(world.dim_p * 2 + 1)', so content.n == 5
+        # next 1 is origin
+        # action_shape.append(content.n)
+
+        action_shape.append(9)
+
     args.action_shape = action_shape[:args.n_agents]  # 每一维代表该agent的act维度
     args.high_action = 1
     args.low_action = -1

@@ -1,6 +1,6 @@
 import torch
 import os
-from maddpg.actor_critic import Actor, Critic
+from maddpg.actor_critic import Actor, e_Actor, Critic
 
 
 class MADDPG:
@@ -12,6 +12,7 @@ class MADDPG:
         # create the network
         self.actor_network = Actor(args, agent_id)
         self.critic_network = Critic(args)
+        self.evaluation_actor_network = e_Actor(args, agent_id)
 
         # build up the target network
         self.actor_target_network = Actor(args, agent_id)
@@ -39,6 +40,7 @@ class MADDPG:
         # 加载模型
         if os.path.exists(self.model_path + '/actor_params.pkl'):
             self.actor_network.load_state_dict(torch.load(self.model_path + '/actor_params.pkl'))
+            self.evaluation_actor_network.load_state_dict(torch.load(self.model_path + '/actor_params.pkl'))
             self.critic_network.load_state_dict(torch.load(self.model_path + '/critic_params.pkl'))
             print('Agent {} successfully loaded actor_network: {}'.format(self.agent_id,
                                                                           self.model_path + '/actor_params.pkl'))
@@ -49,6 +51,9 @@ class MADDPG:
     def _soft_update_target_network(self):
         for target_param, param in zip(self.actor_target_network.parameters(), self.actor_network.parameters()):
             target_param.data.copy_((1 - self.args.tau) * target_param.data + self.args.tau * param.data)
+
+        for evaluation_param, param in zip(self.evaluation_actor_network.parameters(), self.actor_network.parameters()):
+            evaluation_param.data.copy_(param.data)
 
         for target_param, param in zip(self.critic_target_network.parameters(), self.critic_network.parameters()):
             target_param.data.copy_((1 - self.args.tau) * target_param.data + self.args.tau * param.data)

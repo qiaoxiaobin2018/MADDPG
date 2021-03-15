@@ -10,8 +10,8 @@ def get_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario-name", type=str, default="simple_tag", help="name of the scenario script")
-    parser.add_argument("--max-episode-len", type=int, default=100, help="maximum episode length")
-    parser.add_argument("--time-steps", type=int, default=2000000, help="number of time steps")
+    parser.add_argument("--max-episode-len", type=int, default=100, help="每一局的时间步")
+    parser.add_argument("--time-steps", type=int, default=2000000, help="总的时间步")
     # 一个地图最多env.n个agents，用户可以定义min(env.n,num-adversaries)个敌人，剩下的是好的agent
     parser.add_argument("--num-adversaries", type=int, default=1, help="number of adversaries")
     # Core training parameters
@@ -29,10 +29,10 @@ def get_args():
     parser.add_argument("--model-dir", type=str, default="", help="directory in which training state and model are loaded")
 
     # Evaluate
-    parser.add_argument("--evaluate-episodes", type=int, default=10, help="number of episodes for evaluating")
+    parser.add_argument("--evaluate-episodes", type=int, default=10, help="测试时每一局进行的时间步数")
     parser.add_argument("--evaluate-episode-len", type=int, default=100, help="length of episodes for evaluating")
     parser.add_argument("--evaluate", type=bool, default=False, help="whether to evaluate the model")
-    parser.add_argument("--evaluate-rate", type=int, default=1000, help="how often to evaluate model")
+    parser.add_argument("--evaluate-rate", type=int, default=1000, help="测评的时间步间隔")
     args = parser.parse_args()
 
     return args

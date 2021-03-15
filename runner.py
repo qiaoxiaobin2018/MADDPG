@@ -14,6 +14,7 @@ class Runner:
         self.epsilon = args.epsilon
         self.episode_limit = args.max_episode_len
         self.env = env
+        # 初始化之后的每个 agent 包含完整的 4 个网络
         self.agents = self._init_agents()
         self.buffer = Buffer(args)
         self.save_path = self.args.save_dir + '/' + self.args.scenario_name
@@ -41,7 +42,15 @@ class Runner:
                     u.append(action)
                     actions.append(action)
             for i in range(self.args.n_agents, self.args.n_players):
-                actions.append([0, np.random.rand() * 2 - 1, 0, np.random.rand() * 2 - 1, 0])
+                # next 1 is origin
+                # actions.append([0, np.random.rand() * 2 - 1, 0, np.random.rand() * 2 - 1, 0])
+
+                # 产生一个一致的离散随机动作
+                good_action = np.zeros(9)
+                position_for_one = np.random.randint(0, 9)
+                good_action[position_for_one] = 1
+                actions.append(good_action)
+
             s_next, r, done, info = self.env.step(actions)
             self.buffer.store_episode(s[:self.args.n_agents], u, r[:self.args.n_agents], s_next[:self.args.n_agents])
             s = s_next
@@ -66,6 +75,7 @@ class Runner:
         returns = []
         for episode in range(self.args.evaluate_episodes):
             # reset the environment
+            # 所有 agent 的 state(observation)
             s = self.env.reset()
             rewards = 0
             for time_step in range(self.args.evaluate_episode_len):
@@ -75,8 +85,19 @@ class Runner:
                     for agent_id, agent in enumerate(self.agents):
                         action = agent.select_action(s[agent_id], 0, 0)
                         actions.append(action)
+                # n_agents == 4 - 1 & n_players = 4  -- execute once
                 for i in range(self.args.n_agents, self.args.n_players):
-                    actions.append([0, np.random.rand() * 2 - 1, 0, np.random.rand() * 2 - 1, 0])
+                    # 食物的随机动作 -- [0, 0.18030028174493018, 0, -0.0948044917646731, 0]
+                    # next 1 is origin
+                    # actions.append([0, np.random.rand() * 2 - 1, 0, np.random.rand() * 2 - 1, 0])
+
+                    # 产生一个一致的离散随机动作
+                    good_action = np.zeros(9)
+                    position_for_one = np.random.randint(0, 9)
+                    good_action[position_for_one] = 1
+                    actions.append(good_action)
+
+
                 s_next, r, done, info = self.env.step(actions)
                 rewards += r[0]
                 s = s_next
