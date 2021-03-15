@@ -16,10 +16,37 @@ $ python main.py --scenario-name=simple_tag --evaluate-episodes=10
 
 Directly run the main.py, then the algrithm will be tested on scenario 'simple_tag' for 10 episodes, using the pretrained model.
 
-## Note
+## Changes
 
-+ We have train the agent on scenario 'simple_tag', but the model we provide is not the best because we don't want to waste time on training, you can keep training it for better performence.
++ add gumbel_softmax to actor network
 
-+ There are 4 agents in simple_tag, including 3 predators and 1 prey. we use MADDPG to train predators to catch the prey. The prey's action can be controlled by you, in our case we set it random. 
+```
+        ...
+        actions = self.action_out(x)
+        actions_one_hot = F.gumbel_softmax(actions, tau=1, hard=True)
+        ...
+```
 
-+ The default setting of Multi-Agent Particle Environment(MPE) is sparse reward, you can change it to dense reward by replacing 'shape=False' to 'shape=True' in file multiagent-particle-envs/multiagent/scenarios/simple_tag.py/.
++ define the actor network for evaluation
+
+
+```
+        class e_Actor(nn.Module):
+        ...
+```
+
++ discrete action in multiagent-particle-envs-master/multiagent/environment.py like this:
+
+```
+        ...
+        action_choice_list = [[0, 0], [0, 0.2], [0, -0.2], [0.2, 0], [0.2, 0.2], [0.2, -0.2], [-0.2, 0],
+                                  [-0.2, 0.2], [-0.2, -0.2]]
+        which_action_to_choice = 0
+        for one_pos in range(9):
+            if action[0][one_pos]:
+                which_action_to_choice = one_pos
+                    break
+         agent.action.u[0] += action_choice_list[which_action_to_choice][0]
+         agent.action.u[1] += action_choice_list[which_action_to_choice][1]
+        ...
+```
