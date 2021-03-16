@@ -50,3 +50,7 @@ Directly run the main.py, then the algrithm will be tested on scenario 'simple_t
          agent.action.u[1] += action_choice_list[which_action_to_choice][1]
         ...
 ```
+
++ Training
+
+![](https://github.com/qiaoxiaobin2018/MADDPG/blob/simple_discrete_version/model/simple_tag/plt.png "training returns")  
